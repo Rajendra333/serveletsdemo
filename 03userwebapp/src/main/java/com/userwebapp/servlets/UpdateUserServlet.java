@@ -1,0 +1,82 @@
+package com.userwebapp.servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class UpdateUserServlet
+ */
+@WebServlet("/UpdateUserServlet")
+public class UpdateUserServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	 private Connection connection;
+	 
+	    public void init(ServletConfig config) {
+	    	try {
+				ServletContext context=config.getServletContext();
+				String dburl=context.getInitParameter("dburl");
+				String dbuser=context.getInitParameter("dbuser");
+				String dbpassword=context.getInitParameter("dbpassword");
+				Class.forName("com.mysql.jdbc.Driver");
+				
+			 connection=DriverManager.getConnection(dburl,dbuser,dbpassword);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+	
+		String emailId=request.getParameter("emailId");
+		String password=request.getParameter("password");
+		response.setContentType("text/html");
+					
+	
+		try( 
+				Statement statment=connection.createStatement();){
+					int result=statment.executeUpdate("update user set password= '"+ password+"' where email='"+emailId+"'");
+				PrintWriter out=response.getWriter();
+				
+				
+				if(result>0) {
+					out.println("<h1>user updated in DB</h1>");
+				}else {
+					out.println("<h1>Error updating in DB</h1>");
+				}
+					}
+				
+			catch(SQLException e) {
+				e.printStackTrace();		
+			}
+	}
+	
+	public void destroy() {
+		
+			try {
+				if(connection!=null);
+				connection.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
+	}
+	}
+
+
